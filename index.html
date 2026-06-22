@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merchant Menu Optimizer</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-secondary: #f7f7f5;
+      --bg-tertiary: #f0efe8;
+      --text-primary: #1a1a18;
+      --text-secondary: #5f5e5a;
+      --text-tertiary: #888780;
+      --border: rgba(0,0,0,0.12);
+      --border-strong: rgba(0,0,0,0.25);
+      --purple: #7F77DD;
+      --purple-dark: #534AB7;
+      --purple-light: #EEEDFE;
+      --purple-text: #3C3489;
+      --green-bg: #EAF3DE;
+      --green-text: #27500A;
+      --amber-bg: #FAEEDA;
+      --amber-text: #633806;
+      --red-bg: #FCEBEB;
+      --red-text: #791F1F;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg-secondary: #252523;
+        --bg-tertiary: #2c2c2a;
+        --text-primary: #f0efe8;
+        --text-secondary: #b4b2a9;
+        --text-tertiary: #888780;
+        --border: rgba(255,255,255,0.1);
+        --border-strong: rgba(255,255,255,0.22);
+        --purple-light: #26215C;
+        --purple-text: #AFA9EC;
+        --green-bg: #173404;
+        --green-text: #C0DD97;
+        --amber-bg: #412402;
+        --amber-text: #FAC775;
+        --red-bg: #501313;
+        --red-text: #F7C1C1;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    header p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      line-height: 1.6;
+    }
+
+    .proxy-notice {
+      background: var(--amber-bg);
+      border: 0.5px solid rgba(186,117,23,0.3);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--amber-text);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .proxy-notice code {
+      font-family: monospace;
+      background: rgba(0,0,0,0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .metric-val {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 140px;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 10px 12px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(127,119,221,0.15);
+    }
+
+    .api-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .api-input {
+      flex: 1;
+      height: 36px;
+      padding: 0 12px;
+      font-size: 13px;
+      border: 0.5px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .api-input:focus {
+      outline: none;
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(127,119,221,0.15);
+    }
+
+    .api-input::placeholder { color: var(--text-tertiary); }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      height: 36px;
+      padding: 0 16px;
+      font-size: 13px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.12s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--purple);
+      color: #fff;
+      border: none;
+      font-weight: 500;
+    }
+
+    .btn-primary:hover { background: var(--purple-dark); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-primary:disabled {
+      background: var(--bg-secondary);
+      color: var(--text-tertiary);
+      border: 0.5px solid var(--border);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 0.5px solid var(--border-strong);
+      color: var(--text-secondary);
+    }
+
+    .btn-ghost:hover { background: var(--bg-secondary); }
+
+    .status-msg {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border: 2px solid var(--border-strong);
+      border-top-color: var(--purple);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: -3px;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .item-card {
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+    }
+
+    .item-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 2px;
+    }
+
+    .score-pill {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .score-high { background: var(--green-bg); color: var(--green-text); }
+    .score-mid  { background: var(--amber-bg); color: var(--amber-text); }
+    .score-low  { background: var(--red-bg);   color: var(--red-text);   }
+
+    .item-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    @media (max-width: 600px) {
+      .item-body { grid-template-columns: 1fr; }
+    }
+
+    .col-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-tertiary);
+      margin-bottom: 6px;
+    }
+
+    .old-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .new-desc {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .flags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .flag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+
+    .flag-warn { background: var(--amber-bg); color: var(--amber-text); }
+    .flag-ok   { background: var(--green-bg); color: var(--green-text); }
+    .flag-info { background: var(--purple-light); color: var(--purple-text); }
+
+    .rationale {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 0.5px solid var(--border);
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    .export-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 0.5px solid var(--border);
+    }
+
+    footer a { color: var(--purple); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <h1>Merchant menu optimizer</h1>
+    <p>Paste your menu as CSV, enter your API details, and get AI-powered rewrites, health scores, and flags for every item.</p>
+  </header>
+
+  <div class="proxy-notice">
+    <span>&#9432;</span>
+    <span>
+      <strong>Setup required:</strong> Enter your Anthropic API key below, or a Cloudflare Worker proxy URL.
+      Never commit your API key to a public GitHub repo — use a proxy for production.
+      See <code>README.md</code> for setup instructions.
+    </span>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Items analyzed</div><div class="metric-val" id="m-total">—</div></div>
+    <div class="metric"><div class="metric-label">Avg health score</div><div class="metric-val" id="m-avg">—</div></div>
+    <div class="metric"><div class="metric-label">Need photos</div><div class="metric-val" id="m-photos">—</div></div>
+    <div class="metric"><div class="metric-label">Low scores (&lt;5)</div><div class="metric-val" id="m-low">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x2699; API configuration</div>
+    <div class="api-row">
+      <input class="api-input" id="api-key" type="password" placeholder="Anthropic API key (sk-ant-...) or Cloudflare Worker URL (https://...)" />
+      <button class="btn-ghost" onclick="toggleKeyVis()">Show</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-tertiary);margin-top:8px;">
+      Key is stored in memory only — never saved or sent anywhere except the Anthropic API.
+      For GitHub Pages production use, enter your Cloudflare Worker proxy URL instead.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">&#x1F4C4; Menu items — CSV format</div>
+    <textarea id="csv-input" placeholder="name,description,category,price
+Spicy Chicken Sandwich,Chicken sandwich with sauce,Sandwiches,12.99
+Veggie Bowl,,Bowls,10.50
+Chocolate Cake,Cake,Desserts,6.00"></textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="analyze-btn" onclick="runAnalysis()">&#x2728; Analyze menu</button>
+      <button class="btn-ghost" onclick="loadSample()">Load sample data</button>
+      <button class="btn-ghost" onclick="uploadCSV()">Upload CSV file</button>
+      <button class="btn-ghost" onclick="clearAll()">Clear</button>
+    </div>
+    <input type="file" id="file-input" accept=".csv" style="display:none" onchange="handleFile(event)" />
+  </div>
+
+  <div id="status-area"></div>
+  <div id="results-area"></div>
+
+  <div class="export-row" id="export-row" style="display:none">
+    <button class="btn-ghost" onclick="exportCSV()">&#x2B07; Export results CSV</button>
+    <button class="btn-ghost" onclick="copyJSON()">Copy JSON</button>
+  </div>
+
+  <footer>
+    Built with <a href="https://anthropic.com" target="_blank">Claude API</a> (claude-sonnet-4-6) &middot;
+    <a href="https://github.com" target="_blank">Host on GitHub Pages</a> &middot;
+    <a href="https://developers.cloudflare.com/workers/" target="_blank">Proxy via Cloudflare Workers</a>
+  </footer>
+
+</div>
+
+<script>
+const SAMPLE = `name,description,category,price
+Spicy Chicken Sandwich,Chicken sandwich with spicy sauce,Sandwiches,12.99
+Veggie Bowl,,Healthy,10.50
+Chocolate Lava Cake,Cake with chocolate,Desserts,6.00
+Classic Smash Burger,Two smashed beef patties with american cheese lettuce tomato pickles and our house sauce on a toasted brioche bun,Burgers,13.99
+Mango Smoothie,,Drinks,5.50
+Loaded Nachos,Nachos,Apps,9.99`;
+
+const SYSTEM_PROMPT = `You are a food marketplace conversion specialist. Analyze menu items and return ONLY a valid JSON array — no markdown fences, no preamble, no explanation.
+
+For each item return an object with exactly these keys:
+{
+  "name": "original item name",
+  "original_description": "description they provided, or empty string if none",
+  "new_description": "rewritten description — vivid, appetizing, 15-30 words, highlight key ingredients and cooking method",
+  "score": <integer 1-10>,
+  "needs_photo": <true or false>,
+  "category_fix": "<suggested category string if current seems wrong, otherwise null>",
+  "allergen_flag": "<comma-separated common allergens if identifiable from name/description, otherwise null>",
+  "rationale": "<one sentence: the single most important improvement made>"
+}
+
+Scoring rubric:
+1-3 = missing or completely generic description
+4-6 = basic description but lacks appetite appeal or key details
+7-8 = good description with ingredients and sensory appeal
+9-10 = excellent — vivid, allergens clear, strong upsell potential
+
+Return ONLY the JSON array. No other text.`;
+
+let allResults = [];
+
+function loadSample() {
+  document.getElementById('csv-input').value = SAMPLE;
+}
+
+function uploadCSV() {
+  document.getElementById('file-input').click();
+}
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => { document.getElementById('csv-input').value = ev.target.result; };
+  reader.readAsText(file);
+}
+
+function clearAll() {
+  document.getElementById('csv-input').value = '';
+  document.getElementById('results-area').innerHTML = '';
+  document.getElementById('status-area').innerHTML = '';
+  document.getElementById('export-row').style.display = 'none';
+  allResults = [];
+  updateMetrics([]);
+}
+
+function toggleKeyVis() {
+  const inp = document.getElementById('api-key');
+  const btn = inp.nextElementSibling;
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = 'Hide'; }
+  else { inp.type = 'password'; btn.textContent = 'Show'; }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',');
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim().replace(/^"|"$/g, ''));
+    return obj;
+  }).filter(r => r.name);
+}
+
+function scoreClass(s) {
+  return s >= 7 ? 'score-high' : s >= 4 ? 'score-mid' : 'score-low';
+}
+
+function updateMetrics(results) {
+  document.getElementById('m-total').textContent = results.length || '—';
+  if (!results.length) {
+    ['m-avg', 'm-photos', 'm-low'].forEach(id => document.getElementById(id).textContent = '—');
+    return;
+  }
+  const avg = results.reduce((a, r) => a + (r.score || 0), 0) / results.length;
+  document.getElementById('m-avg').textContent = avg.toFixed(1) + '/10';
+  document.getElementById('m-photos').textContent = results.filter(r => r.needs_photo).length;
+  document.getElementById('m-low').textContent = results.filter(r => r.score < 5).length;
+}
+
+function renderResults(results) {
+  if (!results.length) {
+    document.getElementById('results-area').innerHTML = '<div class="status-msg">No valid items found. Check your CSV format — first row must be headers.</div>';
+    return;
+  }
+  const html = results.map(r => `
+    <div class="item-card">
+      <div class="item-header">
+        <div>
+          <div class="item-name">${escHtml(r.name)}</div>
+          <div class="item-meta">${escHtml(r.category || 'Uncategorized')} &middot; $${escHtml(r.price || '—')}</div>
+        </div>
+        <span class="score-pill ${scoreClass(r.score)}">${r.score}/10</span>
+      </div>
+      <div class="item-body">
+        <div>
+          <div class="col-label">Original description</div>
+          <div class="old-desc">${r.original_description ? escHtml(r.original_description) : '<em style="opacity:0.5">No description provided</em>'}</div>
+        </div>
+        <div>
+          <div class="col-label">Rewritten description</div>
+          <div class="new-desc">${escHtml(r.new_description)}</div>
+          <div class="flags">
+            ${r.needs_photo
+              ? '<span class="flag flag-warn">&#x1F4F7; Needs photo</span>'
+              : '<span class="flag flag-ok">&#x2713; Has photo cue</span>'}
+            ${r.category_fix ? `<span class="flag flag-info">Category: ${escHtml(r.category_fix)}</span>` : ''}
+            ${r.allergen_flag ? `<span class="flag flag-warn">Allergens: ${escHtml(r.allergen_flag)}</span>` : ''}
+          </div>
+          <div class="rationale">${escHtml(r.rationale)}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('results-area').innerHTML = html;
+  document.getElementById('export-row').style.display = 'flex';
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function runAnalysis() {
+  const apiKey = document.getElementById('api-key').value.trim();
+  const raw = document.getElementById('csv-input').value.trim();
+
+  if (!apiKey) {
+    setStatus('Enter your Anthropic API key or Cloudflare Worker URL above.', true);
+    return;
+  }
+  if (!raw) {
+    setStatus('Paste some CSV data first, or click "Load sample data".', true);
+    return;
+  }
+
+  const items = parseCSV(raw);
+  if (!items.length) {
+    setStatus('Could not parse items. Make sure the first row has headers: name, description, category, price', true);
+    return;
+  }
+
+  document.getElementById('analyze-btn').disabled = true;
+  document.getElementById('results-area').innerHTML = '';
+  document.getElementById('export-row').style.display = 'none';
+  setStatus(`<span class="spinner"></span>Analyzing ${items.length} item${items.length !== 1 ? 's' : ''} with Claude...`);
+
+  const isWorkerUrl = apiKey.startsWith('http');
+  const endpoint = isWorkerUrl ? apiKey : 'https://api.anthropic.com/v1/messages';
+
+  const headers = { 'Content-Type': 'application/json' };
+  if (!isWorkerUrl) {
+    headers['x-api-key'] = apiKey;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+
+  const body = {
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1000,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: `Analyze these menu items:\n${JSON.stringify(items, null, 2)}` }]
+  };
+
+  try {
+    const resp = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(body) });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `HTTP ${resp.status}`);
+    }
+    const data = await resp.json();
+    const text = data.content?.find(b => b.type === 'text')?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    allResults = parsed;
+    updateMetrics(parsed);
+    renderResults(parsed);
+    setStatus('');
+  } catch (e) {
+    setStatus(`Error: ${e.message}`, true);
+    console.error(e);
+  }
+
+  document.getElementById('analyze-btn').disabled = false;
+}
+
+function setStatus(msg, isError) {
+  const el = document.getElementById('status-area');
+  if (!msg) { el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="status-msg" style="${isError ? 'color:#A32D2D' : ''}">${msg}</div>`;
+}
+
+function exportCSV() {
+  if (!allResults.length) return;
+  const headers = ['name', 'original_description', 'new_description', 'score', 'needs_photo', 'category_fix', 'allergen_flag', 'rationale'];
+  const rows = allResults.map(r => headers.map(h => JSON.stringify(r[h] ?? '')).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'menu_optimized.csv'; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function copyJSON() {
+  if (!allResults.length) return;
+  navigator.clipboard.writeText(JSON.stringify(allResults, null, 2))
+    .then(() => { const b = document.querySelector('.export-row .btn-ghost'); b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy JSON', 1500); });
+}
+</script>
+</body>
+</html>
